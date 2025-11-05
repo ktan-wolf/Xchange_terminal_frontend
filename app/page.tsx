@@ -1,24 +1,36 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect , useState} from "react";
+
+interface PriceUpdate{
+  source : string;
+  pair : string;
+  price : number;
+}
 
 export default function Home() {
 
-useEffect(() => {
-    const socket = new WebSocket("ws://127.0.0.1:8081/ws");
+  const [price , setPrice] = useState<number | null>(null);
 
-    socket.onopen = () => console.log("🔗 Connected to Rust backend");
-    socket.onmessage = (event) =>
-      console.log("📩 Message from backend:", event.data);
-    socket.onerror = (err) => console.error("⚠️ Socket error:", err);
-    socket.onclose = () => console.log("❌ Connection closed");
+  useEffect(() => {
+    const ws = new WebSocket("ws://127.0.0.1:8081/ws");
 
-    return () => socket.close();
+    ws.onmessage = (event) => {
+      const data : PriceUpdate = JSON.parse(event.data);
+      
+      if(data.source === "Binance") {
+        setPrice(data.price);
+      }
+    };
+
+    return () => ws.close();
   }, []);
 
   return (
-    <main style={{ display: "grid", placeItems: "center", height: "100vh" }}>
-      <h1>Web3 Terminal – Sprint 0</h1>
-      <p>hi from the rust backend service 🚀</p>
-    </main>
+    <div className="p-4 text-center">
+      <h2 className="text-xl font-semibold">Binance SOL/USDT</h2>
+      <p className="text-2xl font-bold text-green-600">
+        {price ? `$${price.toFixed(2)}` : "Loading..."}
+      </p>
+    </div>
   );
 }
