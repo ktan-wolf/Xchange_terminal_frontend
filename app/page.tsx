@@ -9,7 +9,8 @@ interface PriceUpdate{
 
 export default function Home() {
 
-  const [price , setPrice] = useState<number | null>(null);
+  const [binanceprice , setbinancePrice] = useState<number | null>(null);
+  const [raydiumprice , setraydiumPrice] = useState<number | null>(null);
 
   useEffect(() => {
     const ws = new WebSocket("ws://127.0.0.1:8081/ws");
@@ -18,7 +19,11 @@ export default function Home() {
       const data : PriceUpdate = JSON.parse(event.data);
       
       if(data.source === "Binance") {
-        setPrice(data.price);
+        setbinancePrice(data.price);
+      }
+
+      if(data.source === "Raydium") {
+        setraydiumPrice(data.price);
       }
     };
 
@@ -29,7 +34,12 @@ export default function Home() {
     <div className="p-4 text-center">
       <h2 className="text-xl font-semibold">Binance SOL/USDT</h2>
       <p className="text-2xl font-bold text-green-600">
-        {price ? `$${price.toFixed(2)}` : "Loading..."}
+        {binanceprice ? `$${binanceprice.toFixed(2)}` : "Loading..."}
+      </p>
+
+      <h2 className="text-xl font-semibold">Raydium SOL/USDT</h2>
+      <p className="text-2xl font-bold text-green-600">
+        {raydiumprice ? `$${raydiumprice.toFixed(2)}` : "Loading..."}
       </p>
     </div>
   );
